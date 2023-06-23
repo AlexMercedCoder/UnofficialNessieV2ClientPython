@@ -41,7 +41,16 @@ class NessieV2Client:
     def get_config(self):
         url = self.endpoint + '/config'
         auth = self.setup_auth()
-        return requests.get(url=url, auth=auth, verify=self.verify, headers=headers['no_body'], timeout=self.timeout)
+
+        # make request
+        response =  requests.get(url=url, auth=auth, verify=self.verify, headers=headers['no_body'], timeout=self.timeout)
+        
+        # Handle potential errors
+        if response.status_code != 200:
+            raise Exception(f'Failed to get references: {response.status_code} {response.text}')
+        
+        # return response
+        return response
     
     ## Use this to get a list of branches and tags
     def get_all_references(self, fetch=None, filter=None, max_records=None, page_token=None):
@@ -111,11 +120,12 @@ class NessieV2Client:
     def create_commit(self, branch, operations, expected_hash=None):
         url = self.endpoint + f'/trees/{branch}/history/commit'
         payload = json.dumps(operations)
-        params = {"expected_hash": expected_hash}
+        params = {"expectedHash": expected_hash}
         auth=self.setup_auth()
         response = requests.post(url, headers=headers["has_body"], params=params, auth=auth, data=payload, verify=self.verify)
 
         if response.status_code != 200:
+            print(response.url)
             print(response.json())
             raise Exception(f'Request failed with status {response.status_code}')
         else:
