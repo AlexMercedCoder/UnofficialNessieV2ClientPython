@@ -9,7 +9,7 @@ authors = [
   { name="Alex Merced", email="alex.merced@dremio.com" },
 ]
 description = "An unofficial example of a Nessie V2 Client"
-readme = "README.md"
+readme = "readme.md"
 requires-python = ">=3.7"
 classifiers = [
     "Programming Language :: Python :: 3",

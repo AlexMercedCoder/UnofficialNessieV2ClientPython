@@ -12,6 +12,20 @@ This initializes the class with a configuration dictionary. The configuration sh
 **Parameters:**
 - `config`: A dictionary containing the configurations. 
 
+```python
+config = { 
+          "endpoint": "http://0.0.0.0:19120/api/v2",
+          "verify": False,
+          "default_branch": "main",
+          "auth": {
+              "type": "none",
+              "timeout": 10
+          }
+        }
+
+client = NessieV2Client(config)
+```
+
 ---
 
 ## Class Methods
@@ -25,6 +39,8 @@ This method sets up the authentication based on the provided authentication type
 **Returns:** 
 - An authentication object for the requests.
 
+**This Method is used in all the other methods automatically**
+
 ---
 
 ### get_config()
@@ -33,6 +49,19 @@ This method sends a GET request to the `/config` endpoint to retrieve the config
 
 **Returns:**
 - A JSON object containing the configuration details.
+
+```python
+{
+'defaultBranch': 'main', 
+'minSupportedApiVersion': 1, 
+'maxSupportedApiVersion': 2, 
+'actualApiVersion': 2, 
+'specVersion': '2.1.0', 
+'noAncestorHash': '2e1cfa82b035c26cbbbdae632cea070514eb8b773f616aaeaf668e2f0be8f10d', 
+'repositoryCreationTimestamp': '2023-06-30T02:03:05.387435066Z',
+ 'oldestPossibleCommitTimestamp': '2023-06-30T02:03:05.387435066Z'
+}
+```
 
 ---
 
@@ -48,6 +77,18 @@ This method retrieves information about all the branches and tags from the `/tre
 
 **Returns:**
 - A JSON object containing information about all the branches and tags.
+
+```python
+{'token': None, 
+'references': [
+    {'type': 'BRANCH', 'name': 'main', 'hash': '2e1cfa82b035c26cbbbdae632cea070514eb8b773f616aaeaf668e2f0be8f10d'},
+    {'type': 'BRANCH', 'name': 'test-branch', 'hash': 'fd97cf49f40ea092abe8f9b1ebccf2c14de8702c2c07f5d84da5898b7c49b28b'},
+    {'type': 'BRANCH', 'name': 'test-branch3', 'hash': '3f52a463534cd31d312a65d61a35308b3124f9494e52892a16d1f6faa2543754'},
+    {'type': 'BRANCH', 'name': 'test-branch4', 'hash': '2e1cfa82b035c26cbbbdae632cea070514eb8b773f616aaeaf668e2f0be8f10d'}
+    ], 
+    'hasMore': False
+}
+```
 
 ---
 
@@ -85,8 +126,94 @@ This method creates a new commit on a branch.
 - `operations`: The operations to be committed.
 - `branch`: The branch on which to commit. Defaults to "main".
 
+*note: If a new table, then it should not have a hash or content id in the operation, but if an existing table it must have a content id that matches the existing entry.*
+
+Example Operations for New Table
+```python
+operations = {
+  "commitMeta": {
+    "author": "authorName <authorName@example.com>",
+    "authorTime": "2021-04-07T14:42:25.534748Z",
+    "message": "Example Commit Message",
+    "properties": {
+      "additionalProp1": "xxx",
+      "additionalProp2": "yyy",
+      "additionalProp3": "zzz"
+    },
+    "signedOffBy": "signedOffByName <signedOffBy@example.com>"
+  },
+  "operations": [
+    {
+      "type": "PUT",
+      "key": {
+        "elements": [
+          "table1"
+        ]
+      },
+      "content": {
+        "type": "ICEBERG_TABLE",
+        "metadataLocation": "/path/to/metadata/",
+        "snapshotId": 1,
+        "schemaId": 2,
+        "specId": 3,
+        "sortOrderId": 4
+      }
+    }
+  ]
+}
+```
+
+For an Existing Table
+```python
+operations = {
+  "commitMeta": {
+    "author": "authorName <authorName@example.com>",
+    "authorTime": "2021-04-07T14:42:25.534748Z",
+    "message": "Example Commit Message",
+    "properties": {
+      "additionalProp1": "xxx",
+      "additionalProp2": "yyy",
+      "additionalProp3": "zzz"
+    },
+    "signedOffBy": "signedOffByName <signedOffBy@example.com>"
+  },
+  "operations": [
+    {
+      "type": "PUT",
+      "key": {
+        "elements": [
+          "table1"
+        ]
+      },
+      "content": {
+        "type": "ICEBERG_TABLE",
+        "id": "10df6e9b-890f-491e-821f-02dfeed3a847",
+        "metadataLocation": "/path/to/metadata/",
+        "snapshotId": 1,
+        "schemaId": 2,
+        "specId": 3,
+        "sortOrderId": 4
+      }
+    }
+  ]
+}
+```
+
+*Refer to API Documentation for shape of other events like NAMESPACE, ICEBERG_VIEW, DELTA_TABLE, and more*
+
 **Returns:**
 - A JSON object representing the commit.
+
+```python
+{'targetBranch': 
+    {
+        'type': 'BRANCH',
+        'name': 'test-branch3',
+        'hash': 'bbef45ace9c7a32b47da0e1ad2f6a42003651250406beb9b156af71c58c0c657'
+    }, 
+    'addedContents': None
+}
+```
 
 ---
 
@@ -136,100 +263,108 @@ This method retrieves the differences between two references.
 
 ---
 
-### get_commit_log(from_ref: str, to_ref: str, author: Optional[str]=None, committer: Optional[str]=None, max_records: Optional[int]=None, page_token: Optional[str]=None)
+### get_reference_details(ref: str, fetch: Optional[str]=None)
 
-This method retrieves the commit log between two references.
-
-**Parameters:**
-- `from_ref`: The reference from which to start.
-- `to_ref`: The reference to compare.
-- `author`: Filter the results by author.
-- `committer`: Filter the results by committer.
-- `max_records`: The maximum number of records to return.
-- `page_token`: Paging continuation token.
-
-**Returns:**
-- A JSON object containing the commit log between two references.
-
----
-
-### get_value(branch: str, key: str)
-
-This method retrieves a value from a branch.
+This method retrieves the details of a reference.
 
 **Parameters:**
-- `branch`: The branch to query.
-- `key`: The key of the value.
-
-**Returns:**
-- A JSON object containing the requested value.
-
----
-
-### put_value(branch: str, key: str, value: dict)
-
-This method inserts or updates a value in a branch.
-
-**Parameters:**
-- `branch`: The branch to update.
-- `key`: The key of the value.
-- `value`: The new value to insert or update.
-
-**Returns:**
-- A JSON object representing the put operation.
-
----
-
-### delete_value(branch: str, key: str)
-
-This method deletes a value from a branch.
-
-**Parameters:**
-- `branch`: The branch to update.
-- `key`: The key of the value to delete.
-
-**Returns:**
-- A JSON object representing the delete operation.
-
----
-
-### get_contents(branch: str, path: str, fetch: Optional[str]=None)
-
-This method retrieves the contents of a path on a branch.
-
-**Parameters:**
-- `branch`: The branch to query.
-- `path`: The path of the contents to retrieve.
+- `ref`: The reference to query.
 - `fetch`: Specifies how much extra information is to be retrieved from the server.
 
 **Returns:**
-- A JSON object containing the requested contents.
+- A JSON object containing the details of the reference.
 
 ---
 
-### put_contents(branch: str, path: str, contents: dict)
+### set_reference(ref: str, body: dict, ref_type: Optional[str]=None)
 
-This method inserts or updates the contents of a path on a branch.
+This method sets the hash for a reference to the hash of another reference.
 
 **Parameters:**
-- `branch`: The branch to update.
-- `path`: The path of the contents to insert or update.
-- `contents`: The new contents to insert or update.
+- `ref`: The reference to update.
+- `body`: The body containing the new hash.
+- `ref_type`: The type of the reference.
 
 **Returns:**
-- A JSON object representing the put operation.
+- A JSON object representing the set operation.
 
 ---
 
-### delete_contents(branch: str, path: str)
+### delete_reference(ref: str, ref_type: Optional[str]="BRANCH")
 
-This method deletes the contents of a path on a branch.
+This method deletes a reference.
 
 **Parameters:**
-- `branch`: The branch to update.
-- `path`: The path of the contents to delete.
+- `ref`: The reference to delete.
+- `ref_type`: The type of the reference (defaults to "BRANCH").
 
 **Returns:**
 - A JSON object representing the delete operation.
 
 ---
+
+### get_several_contents(ref: str, keys: List[str], with_doc=False)
+
+This method retrieves the contents of multiple keys in a reference.
+
+**Parameters:**
+- `ref`: The reference to query.
+- `keys`: The keys to retrieve.
+- `with_doc`: Whether to include the document in the response.
+
+**Returns:**
+- A JSON object containing the contents of the keys.
+
+---
+
+### get_multiple_contents_post(ref: str, keys: List[str], with_doc: Optional[bool]=False)
+
+This method retrieves the contents of multiple keys in a reference using a POST request.
+
+**Parameters:**
+- `ref`: The reference to query.
+- `keys`: The keys to retrieve.
+- `with_doc`: Whether to include the document in the response.
+
+**Returns:**
+- A JSON object containing the contents of the keys.
+
+---
+
+### get_content(ref: str, key, with_doc=False)
+
+This method retrieves the content of a key in a reference.
+
+**Parameters:**
+- `ref`: The reference to query.
+- `key`: The key to retrieve.
+- `with_doc`: Whether to include the document in the response.
+
+**Returns:**
+- A JSON object containing the content of the key.
+
+---
+
+### get_entries(ref, content=None, filter=None, key=None, max_key=None, max_records=None, min_key=None, page_token=None, prefix_key=None)
+
+This method retrieves the entries of a reference.
+
+**Parameters:**
+- `ref`: The reference to query.
+- `content`, `filter`, `key`, `max_key`, `max_records`, `min_key`, `page_token`, `prefix_key`: Various parameters to filter and limit the results.
+
+**Returns:**
+- A JSON object containing the entries of the reference.
+
+---
+
+### get_commit_log(ref, fetch=None, filter=None, limit_hash=None, max_records=None, page_token=None)
+
+This method retrieves the commit log of a reference.
+
+**Parameters:**
+- `ref`: The reference to query.
+- `fetch`, `filter`, `limit_hash`, `max_records`, `page_token`: Various parameters to filter and limit the results.
+
+**Returns:**
+- A JSON object containing the commit log of the reference.
