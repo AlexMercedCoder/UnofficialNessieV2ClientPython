@@ -170,7 +170,7 @@ class NessieV2Client:
             return response.json()
         
     ## Method for Getting Differences Between Two References
-    def get_diff(self, from_ref: str, to_ref: str, filter: Optional[str]=None, key=None, max_key=None, max_records=None, min_key=None, page_token=None, prefix_key=None):
+    def get_diff(self, from_ref: str, to_ref: str, filter: Optional[str]=None, key: list=None, max_key:str=None, max_records:int=None, min_key:str=None, page_token:str=None, prefix_key:str=None):
         # Construct endpoint URL
         url = f"{self.endpoint}/trees/{from_ref}/diff/{to_ref}"
 
@@ -246,11 +246,12 @@ class NessieV2Client:
     def delete_reference(self, ref: str, ref_type: Optional[str] = None):
         url = f"{self.endpoint}/trees/{ref}"
         params = {}
+        auth=self.setup_auth()
         if ref_type:
             params['type'] = ref_type
 
         try:
-            response = requests.delete(url, params=params)
+            response = requests.delete(url, params=params, auth=auth)
 
             # If the response was successful, no Exception will be raised
             response.raise_for_status()
@@ -268,8 +269,9 @@ class NessieV2Client:
             "key": keys,
             "with-doc": with_doc
         }
+        auth=self.setup_auth()
         try:
-            response = requests.get(url, params=params)
+            response = requests.get(url, params=params, auth=auth)
             response.raise_for_status()
         except HTTPError as http_err:
             print(f'HTTP error occurred: {http_err}')
@@ -277,3 +279,129 @@ class NessieV2Client:
             print(f'Other error occurred: {err}')
         else:
             return response.json()  # Return JSON response
+
+    ## Method to Get the Contents of a Reference with POST
+    def get_multiple_contents_post(self, ref: str, keys: List[str], with_doc: Optional[bool] = False):
+        url = f"{self.endpoint}/trees/{ref}/contents"
+        params = {
+            "with-doc": with_doc
+        }
+        payload = {
+            "keys": keys
+        }
+        auth=self.setup_auth()
+        try:
+            response = requests.post(url, params=params, json=payload, auth=auth)
+            response.raise_for_status()
+        except HTTPError as http_err:
+            print(f'HTTP error occurred: {http_err}')
+        except Exception as err:
+            print(f'Other error occurred: {err}')
+        else:
+            return response.json()  # Return JSON response
+
+    ## Method to Get the Contents of a Reference    
+    def get_content(self, ref: str, key, with_doc=False):
+        # Form the URL for the endpoint
+        url = f"{self.endpoint}/trees/{ref}/contents/{key}"
+
+        # Form the query parameters
+        params = {"with-doc": with_doc}
+        
+        auth=self.setup_auth()
+
+        # Send the request and store the response
+        response = requests.get(url, params=params, auth=auth)
+
+        # Check the status code of the response and handle accordingly
+        if response.status_code == 200:
+            # If the response is successful, parse the response data
+            data = response.json()
+            return data
+
+        elif response.status_code == 400:
+            raise HTTPError('Invalid input, ref name not valid')
+
+        elif response.status_code == 401:
+            raise HTTPError('Invalid credentials provided')
+
+        elif response.status_code == 403:
+            raise HTTPError('Not allowed to view the given reference or read object content for a key')
+
+        elif response.status_code == 404:
+            raise HTTPError(f"Table not found on 'ref' or non-existent reference")
+
+        else:
+            response.raise_for_status()  # If the status code is anything else, raise an exception
+            
+    def get_entries(self, ref, content=None, filter=None, key=None, max_key=None, max_records=None, min_key=None, page_token=None, prefix_key=None):
+        # Form the URL for the endpoint
+        url = f"{self.endpoint}/trees/{ref}/entries"
+
+        # Form the query parameters
+        params = {
+            "content": content,
+            "filter": filter,
+            "key": key,
+            "max-key": max_key,
+            "max-records": max_records,
+            "min-key": min_key,
+            "page-token": page_token,
+            "prefix-key": prefix_key,
+        }
+
+        # Remove None values from params dictionary
+        params = {k: v for k, v in params.items() if v is not None}
+        auth=self.setup_auth()
+
+        # Send the request and store the response
+        response = requests.get(url, params=params, auth=auth)
+
+        # Check the status code of the response and handle accordingly
+        if response.status_code == 200:
+            # If the response is successful, parse the response data
+            data = response.json()
+            return data
+
+        elif response.status_code == 400:
+            raise HTTPError('Invalid input, ref name not valid')
+
+        elif response.status_code == 401:
+            raise HTTPError('Invalid credentials provided')
+
+        elif response.status_code == 403:
+            raise HTTPError('Not allowed to view the given reference or fetch entries for it')
+
+        elif response.status_code == 404:
+            raise HTTPError('Ref not found')
+
+        else:
+            response.raise_for_status()  # If the status code is anything else, raise an exception
+            
+
+    ## Method to Get the Commit Log of a Reference         
+    def get_commit_log(self, ref, fetch=None, filter=None, limit_hash=None, max_records=None, page_token=None):
+        url = self.endpoint + f"/trees/{ref}/history"
+
+        # construct the query parameters
+        query_params = {}
+        auth=self.setup_auth()
+        if fetch:
+            query_params['fetch'] = fetch
+        if filter:
+            query_params['filter'] = filter
+        if limit_hash:
+            query_params['limit-hash'] = limit_hash
+        if max_records:
+            query_params['max-records'] = max_records
+        if page_token:
+            query_params['page-token'] = page_token
+
+        # send the request to the server
+        response = requests.get(url, params=query_params, auth=auth)
+
+        # check for response status
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return f"Error: {response.status_code}, Message: {response.text}"
