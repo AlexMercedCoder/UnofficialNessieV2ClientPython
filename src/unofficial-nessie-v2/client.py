@@ -94,10 +94,10 @@ class NessieV2Client:
         ## use the get_all_references method to get the hash of the reference
         response = self.get_reference_details(name)
         ## loop the responses "referenes" property and return the hash property of the item with matching name and type
-        return response.json()["reference"]["hash"]
+        return response["reference"]["hash"]
     
     ## Use this create a Brach or a Tag
-    def create_reference(self, name, ref_type="BRANCH", source_reference={"name":"main"}):
+    def create_reference(self, name, ref_type="BRANCH", source_reference={"name":"main", "type":"BRANCH"}):
         """
         Create a new branch or tag in the Nessie repository.
 
@@ -114,6 +114,7 @@ class NessieV2Client:
             "name": name,
             "type": ref_type.upper()
         }
+        print(params)
         auth = self.setup_auth()
 
         response = requests.post(url, params=params, auth=auth, headers=headers["has_body"], data=json.dumps(source_reference), verify=self.verify)
@@ -126,7 +127,7 @@ class NessieV2Client:
     
     ## Method to Create a New Commit on a Branch
     def create_commit(self, operations, branch="main"):
-        hash = self.get_hash(branch, "BRANCH")
+        hash = self.get_hash(branch)
         url = self.endpoint + f'/trees/{branch}@{hash}/history/commit'
         payload = json.dumps(operations)
         auth=self.setup_auth()
@@ -135,7 +136,7 @@ class NessieV2Client:
         if response.status_code != 200:
             print(response.url)
             print(response.json())
-            raise Exception(f'Request failed with status {response.status_code}')
+            raise Exception(f'Request failed with status {response.status_code} {response.text}')
         else:
             return response.json()
         
@@ -150,7 +151,7 @@ class NessieV2Client:
         if response.status_code != 200:
             print(response.url)
             print(response.json())
-            raise Exception(f'Request failed with status {response.status_code}')
+            raise Exception(f'Request failed with status {response.status_code} {response.text}')
         else:
             return response.json()
         
@@ -165,7 +166,7 @@ class NessieV2Client:
         if response.status_code != 200:
             print(response.url)
             print(response.json())
-            raise Exception(f'Request failed with status {response.status_code}')
+            raise Exception(f'Request failed with status {response.status_code} {response.text}')
         else:
             return response.json()
         
@@ -243,8 +244,9 @@ class NessieV2Client:
             return response.json()  # Return JSON response
 
     ## Method to Delete a Reference
-    def delete_reference(self, ref: str, ref_type: Optional[str] = None):
-        url = f"{self.endpoint}/trees/{ref}"
+    def delete_reference(self, ref: str, ref_type: Optional[str] = "BRANCH"):
+        hash = self.get_hash(ref)
+        url = f"{self.endpoint}/trees/{ref}@{hash}"
         params = {}
         auth=self.setup_auth()
         if ref_type:
