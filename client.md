@@ -356,6 +356,27 @@ This method retrieves the entries of a reference.
 **Returns:**
 - A JSON object containing the entries of the reference.
 
+
+```python
+{
+    'token': None, 
+    'entries': [
+        {
+            'type': 'ICEBERG_TABLE', 
+            'name': {
+                'elements': ['table1']}, 
+                'contentId': '10df6e9b-890f-491e-821f-02dfeed3a847', 
+                'content': None
+                }
+        ], 
+    'effectiveReference': {
+        'type': 'BRANCH', 
+        'name': 'test-branch3', 
+        'hash': 'bbef45ace9c7a32b47da0e1ad2f6a42003651250406beb9b156af71c58c0c657'
+        }, 
+    'hasMore': False}
+```
+
 ---
 
 ### get_commit_log(ref, fetch=None, filter=None, limit_hash=None, max_records=None, page_token=None)
@@ -368,3 +389,48 @@ This method retrieves the commit log of a reference.
 
 **Returns:**
 - A JSON object containing the commit log of the reference.
+
+```python
+{
+    'token': None, 
+    'logEntries': [
+        {
+            'commitMeta': {
+                'hash': 'bbef45ace9c7a32b47da0e1ad2f6a42003651250406beb9b156af71c58c0c657', 
+                'committer': '', 
+                'authors': ['authorName <authorName@example.com>'], 
+                'allSignedOffBy': ['signedOffByName <signedOffBy@example.com>'], 
+                'message': 'Example Commit Message', 
+                'commitTime': '2023-06-30T23:03:39.461768304Z', 
+                'authorTime': '2021-04-07T14:42:25.534748Z', 
+                'allProperties': {
+                    'additionalprop1': ['xxx'], 
+                    'additionalprop2': ['yyy'], 
+                    'additionalprop3': ['zzz']
+                    }, 
+                'parentCommitHashes': ['3f52a463534cd31d312a65d61a35308b3124f9494e52892a16d1f6faa2543754']
+                }, 
+            'parentCommitHash': '3f52a463534cd31d312a65d61a35308b3124f9494e52892a16d1f6faa2543754', 
+            'operations': None
+        }, 
+        {
+            'commitMeta': {
+                'hash': '3f52a463534cd31d312a65d61a35308b3124f9494e52892a16d1f6faa2543754', 
+                'committer': '', 
+                'authors': ['authorName <authorName@example.com>'], 
+                'allSignedOffBy': ['signedOffByName <signedOffBy@example.com>'], 
+                'message': 'Example Commit Message', 
+                'commitTime': '2023-06-30T23:00:38.857124001Z', 
+                'authorTime': '2021-04-07T14:42:25.534748Z', 
+                'allProperties': {
+                    'additionalprop1': ['xxx'], 
+                    'additionalprop2': ['yyy'], 
+                    'additionalprop3': ['zzz']}, 
+                    'parentCommitHashes': ['2e1cfa82b035c26cbbbdae632cea070514eb8b773f616aaeaf668e2f0be8f10d']
+                }, 
+            'parentCommitHash': '2e1cfa82b035c26cbbbdae632cea070514eb8b773f616aaeaf668e2f0be8f10d', 
+            'operations': None
+        }], 
+    'hasMore': False
+    }
+```
