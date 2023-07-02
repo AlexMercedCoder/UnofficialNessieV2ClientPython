@@ -298,6 +298,10 @@ This method deletes a reference.
 - `ref`: The reference to delete.
 - `ref_type`: The type of the reference (defaults to "BRANCH").
 
+```python
+client.delete_reference("test-branch2")
+```
+
 **Returns:**
 - A JSON object representing the delete operation.
 
@@ -312,8 +316,35 @@ This method retrieves the contents of multiple keys in a reference.
 - `keys`: The keys to retrieve.
 - `with_doc`: Whether to include the document in the response.
 
+```python
+client.get_several_contents("test-branch3", keys=["table1"])
+```
+
 **Returns:**
 - A JSON object containing the contents of the keys.
+
+```python
+{
+    'contents': [
+        {
+            'key': {'elements': ['table1']}, 
+            'content': {
+                'type': 'ICEBERG_TABLE', 
+                'id': '10df6e9b-890f-491e-821f-02dfeed3a847', 
+                'metadataLocation': '/path/to/metadata/', 
+                'snapshotId': 1, 
+                'schemaId': 2, 
+                'specId': 3, 
+                'sortOrderId': 4
+                }
+            }
+        ], 
+        'effectiveReference': {
+            'type': 'BRANCH', 
+            'name': 'test-branch3', 
+            'hash': 'be4277d9393c0ae13434d904bbcb91d2ca0688e03f5dc581ced61428247d276c'
+            }}
+```
 
 ---
 
@@ -326,8 +357,23 @@ This method retrieves the contents of multiple keys in a reference using a POST 
 - `keys`: The keys to retrieve.
 - `with_doc`: Whether to include the document in the response.
 
+```python
+client.get_multiple_contents_post("test-branch3", keys=["table1"], with_doc=True)
+```
+
 **Returns:**
 - A JSON object containing the contents of the keys.
+
+```python
+{
+    'contents': [], 
+    'effectiveReference': {
+        'type': 'BRANCH', 
+        'name': 'test-branch3', 
+        'hash': 'be4277d9393c0ae13434d904bbcb91d2ca0688e03f5dc581ced61428247d276c'
+        }
+}
+```
 
 ---
 
@@ -340,9 +386,31 @@ This method retrieves the content of a key in a reference.
 - `key`: The key to retrieve.
 - `with_doc`: Whether to include the document in the response.
 
+```python
+client.get_content(ref="test-branch3", key="table1", with_doc=False)
+```
+
 **Returns:**
 - A JSON object containing the content of the key.
 
+```python
+{
+    'content': {
+        'type': 'ICEBERG_TABLE', 
+        'id': '10df6e9b-890f-491e-821f-02dfeed3a847', 
+        'metadataLocation': '/path/to/metadata/', 
+        'snapshotId': 1, 
+        'schemaId': 2, 
+        'specId': 3, 
+        'sortOrderId': 4
+        }, 
+    'effectiveReference': {
+        'type': 'BRANCH', 
+        'name': 'test-branch3', 
+        'hash': 'e9f2b15f38fa3d083b51b5a26f6d654ada56eb81b3204e6a1a9d0c75aa343244'
+        }
+    }
+```
 ---
 
 ### get_entries(ref, content=None, filter=None, key=None, max_key=None, max_records=None, min_key=None, page_token=None, prefix_key=None)
