@@ -102,6 +102,16 @@ This method retrieves the hash of a given branch or tag.
 **Returns:**
 - The hash of the branch or tag.
 
+**Usage**
+```python
+client.get_hash("test-branch3")
+```
+
+**Response**
+```python
+be4277d9393c0ae13434d904bbcb91d2ca0688e03f5dc581ced61428247d276c
+```
+
 ---
 
 ### create_reference(name, ref_type="BRANCH", source_reference={"name":"main"})
@@ -111,10 +121,25 @@ This method creates a new branch or tag in the repository.
 **Parameters:**
 - `name`: Name of the new branch or tag.
 - `ref_type`: Type of the new reference ('BRANCH' or 'TAG').
-- `source_reference`: Source reference data (should be a dictionary representing the reference object).
+- `source_reference`: Source reference data (should be a dictionary representing the reference object). By Default will use latest commit on the main branch.
 
 **Returns:**
 - A JSON object representing the created reference.
+
+**Creating a Branch off the main branch**
+```python
+client.create_reference("test-branch4")
+```
+
+**Creating a tag off a commit on another branch**
+```python
+client.create_reference(name="test-tag",ref_type="TAG", source_reference={'type': 'BRANCH', 'name': 'test-branch3', 'hash': 'be4277d9393c0ae13434d904bbcb91d2ca0688e03f5dc581ced61428247d276c'})
+```
+
+**Response**
+```python
+{'reference': {'type': 'TAG', 'name': 'test-tag', 'hash': 'be4277d9393c0ae13434d904bbcb91d2ca0688e03f5dc581ced61428247d276c'}}
+```
 
 ---
 
@@ -125,6 +150,7 @@ This method creates a new commit on a branch.
 **Parameters:**
 - `operations`: The operations to be committed.
 - `branch`: The branch on which to commit. Defaults to "main".
+- `hash`: hash to create commit from, will auto get latest hash if unspecified
 
 *note: If a new table, then it should not have a hash or content id in the operation, but if an existing table it must have a content id that matches the existing entry.*
 
@@ -224,9 +250,33 @@ This method merges changes into a branch.
 **Parameters:**
 - `merge`: The merge operation details.
 - `branch`: The target branch. Defaults to "main".
+- `hash`: hash to create commit from, will auto get latest hash if unspecified
 
 **Returns:**
 - A JSON object representing the merge.
+
+**Sample Merge Operation**
+```json
+{
+  "fromHash": "abcdef4242424242424242424242beef00dead42112233445566778899001122",
+  "fromRefName": "source-ref-name",
+  "defaultKeyMergeMode": "NORMAL",
+  "keyMergeModes": [
+    {
+      "key": {
+        "elements": [
+          "example",
+          "key"
+        ],
+        "mergeBehavior": "FORCE"
+      }
+    }
+  ],
+  "dryRun": false,
+  "fetchAdditionalInfo": false,
+  "returnConflictAsResult": true
+}
+```
 
 ---
 
@@ -270,6 +320,7 @@ This method retrieves the details of a reference.
 **Parameters:**
 - `ref`: The reference to query.
 - `fetch`: Specifies how much extra information is to be retrieved from the server.
+- `hash`: hash to create commit from, will auto get latest hash if unspecified
 
 **Returns:**
 - A JSON object containing the details of the reference.

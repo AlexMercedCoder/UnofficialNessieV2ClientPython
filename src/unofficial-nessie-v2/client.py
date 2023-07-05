@@ -114,7 +114,6 @@ class NessieV2Client:
             "name": name,
             "type": ref_type.upper()
         }
-        print(params)
         auth = self.setup_auth()
 
         response = requests.post(url, params=params, auth=auth, headers=headers["has_body"], data=json.dumps(source_reference), verify=self.verify)
@@ -126,8 +125,8 @@ class NessieV2Client:
         return response.json()
     
     ## Method to Create a New Commit on a Branch
-    def create_commit(self, operations, branch="main"):
-        hash = self.get_hash(branch)
+    def create_commit(self, operations, branch="main", hash=None):
+        hash = hash or self.get_hash(branch)
         url = self.endpoint + f'/trees/{branch}@{hash}/history/commit'
         payload = json.dumps(operations)
         auth=self.setup_auth()
@@ -141,8 +140,8 @@ class NessieV2Client:
             return response.json()
         
     ## Method to Create a Merge on a Branch
-    def create_merge(self, merge, branch="main"):
-        hash = self.get_hash(branch, "BRANCH")
+    def create_merge(self, merge, branch="main", hash=None):
+        hash = hash or self.get_hash(branch, "BRANCH")
         url = self.endpoint + f'/trees/{branch}@{hash}/history/commit'
         payload = json.dumps(merge)
         auth=self.setup_auth()
@@ -156,8 +155,8 @@ class NessieV2Client:
             return response.json()
         
     ## Method to Create a Transplant on a Branch
-    def create_transplant(self, transplant, branch="main"):
-        hash = self.get_hash(branch, "BRANCH")
+    def create_transplant(self, transplant, branch="main", hash=None):
+        hash = hash or self.get_hash(branch, "BRANCH")
         url = self.endpoint + f'/v2/trees/{branch}@{hash}/history/commit'
         payload = json.dumps(transplant)
         auth=self.setup_auth()
