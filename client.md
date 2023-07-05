@@ -13,6 +13,9 @@ This initializes the class with a configuration dictionary. The configuration sh
 - `config`: A dictionary containing the configurations. 
 
 ```python
+
+from unofficial_nessiev2.client import NessieV2Client
+
 config = { 
           "endpoint": "http://0.0.0.0:19120/api/v2",
           "verify": False,
