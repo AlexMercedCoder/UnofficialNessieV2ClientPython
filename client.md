@@ -14,7 +14,7 @@ This initializes the class with a configuration dictionary. The configuration sh
 
 ```python
 
-from unofficial_nessiev2.client import NessieV2Client
+from unofficial_nessiev2_tools.client import NessieV2Client
 
 config = { 
           "endpoint": "http://0.0.0.0:19120/api/v2",
