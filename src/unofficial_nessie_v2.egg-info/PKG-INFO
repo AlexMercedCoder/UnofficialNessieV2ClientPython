@@ -1,0 +1,19 @@
+Metadata-Version: 2.1
+Name: unofficial-nessie-v2
+Version: 0.0.1
+Summary: An unofficial example of a Nessie V2 Client
+Author-email: Alex Merced <alex.merced@dremio.com>
+Project-URL: Homepage, https://github.com/AlexMercedCoder/UnofficialNessieV2ClientPython
+Project-URL: Bug Tracker, https://github.com/AlexMercedCoder/UnofficialNessieV2ClientPython
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+## Unofficial NessieV2 Client
+
+- [Official Nessie Client](https://pypi.org/project/pynessie/)
+- [NessieV2Client Class Docs](./client.md)
+- [NessieIcebergCatalog class (Coming Soon)](./catalog.md)

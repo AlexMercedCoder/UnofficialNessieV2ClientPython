@@ -1,0 +1,14 @@
+LICENSE
+pyproject.toml
+readme.md
+src/unofficial-nessie-v2/__init__.py
+src/unofficial-nessie-v2/catalog.py
+src/unofficial-nessie-v2/client.py
+src/unofficial-nessie-v2/test_client.py
+src/unofficial-nessie-v2/test_objects.py
+src/unofficial-nessie-v2/generators/__init__.py
+src/unofficial-nessie-v2/utils/__init__.py
+src/unofficial_nessie_v2.egg-info/PKG-INFO
+src/unofficial_nessie_v2.egg-info/SOURCES.txt
+src/unofficial_nessie_v2.egg-info/dependency_links.txt
+src/unofficial_nessie_v2.egg-info/top_level.txt

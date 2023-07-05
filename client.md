@@ -256,26 +256,30 @@ This method merges changes into a branch.
 - A JSON object representing the merge.
 
 **Sample Merge Operation**
-```json
-{
-  "fromHash": "abcdef4242424242424242424242beef00dead42112233445566778899001122",
-  "fromRefName": "source-ref-name",
+```python
+merge = {
+  "fromHash": "be4277d9393c0ae13434d904bbcb91d2ca0688e03f5dc581ced61428247d276c",
+  "fromRefName": "test-branch3",
   "defaultKeyMergeMode": "NORMAL",
   "keyMergeModes": [
     {
       "key": {
         "elements": [
-          "example",
-          "key"
-        ],
-        "mergeBehavior": "FORCE"
-      }
+          "table1"
+        ], 
+      },
+      "mergeBehavior": "FORCE"
     }
   ],
-  "dryRun": false,
-  "fetchAdditionalInfo": false,
-  "returnConflictAsResult": true
+  "dryRun": False,
+  "fetchAdditionalInfo": False,
+  "returnConflictAsResult": True
 }
+```
+
+**Usage**
+```python
+client.create_merge(branch="main", merge=merge)
 ```
 
 ---
@@ -287,6 +291,7 @@ This method transplants changes onto a branch.
 **Parameters:**
 - `transplant`: The transplant operation details.
 - `branch`: The target branch. Defaults to "main".
+- `hash`: hash to create commit from, will auto get latest hash if unspecified
 
 **Returns:**
 - A JSON object representing the transplant.
@@ -311,6 +316,44 @@ This method retrieves the differences between two references.
 **Returns:**
 - A JSON object containing the differences between two references.
 
+
+**Usage**
+```python
+client.get_diff(from_ref="test-branch3", to_ref="main")
+```
+
+**Response**
+```python
+{
+  'token': None, 
+  'diffs': [
+    {'key': {
+      'elements': ['table1']
+      }, 
+      'from': {
+        'type': 'ICEBERG_TABLE', 
+        'id': '10df6e9b-890f-491e-821f-02dfeed3a847', 
+        'metadataLocation': '/path/to/metadata/', 
+        'snapshotId': 1, 
+        'schemaId': 2, 
+        'specId': 3, 
+        'sortOrderId': 4
+        }, 
+        'to': None
+    }], 
+  'effectiveFromReference': {
+      'type': 'BRANCH', 
+      'name': 'test-branch3', 
+      'hash': 'be4277d9393c0ae13434d904bbcb91d2ca0688e03f5dc581ced61428247d276c'
+      }, 
+  'effectiveToReference': {
+        'type': 'BRANCH', 
+        'name': 'main', 
+        'hash': '2e1cfa82b035c26cbbbdae632cea070514eb8b773f616aaeaf668e2f0be8f10d'
+        }, 
+  'hasMore': False
+}
+```
 ---
 
 ### get_reference_details(ref: str, fetch: Optional[str]=None)
@@ -320,11 +363,44 @@ This method retrieves the details of a reference.
 **Parameters:**
 - `ref`: The reference to query.
 - `fetch`: Specifies how much extra information is to be retrieved from the server.
-- `hash`: hash to create commit from, will auto get latest hash if unspecified
 
 **Returns:**
 - A JSON object containing the details of the reference.
 
+**Usage**
+```python
+client.get_reference_details(ref="test-branch3",fetch="ALL")
+```
+
+**Response**
+```python
+{
+  'reference': {
+    'type': 'BRANCH', 
+    'name': 'test-branch3', 
+    'metadata': {
+      'numCommitsAhead': 12, 
+      'numCommitsBehind': 0, 
+      'commitMetaOfHEAD': {
+        'hash': 'be4277d9393c0ae13434d904bbcb91d2ca0688e03f5dc581ced61428247d276c', 
+        'committer': '', 
+        'authors': ['authorName <authorName@example.com>'], 
+        'allSignedOffBy': ['signedOffByName <signedOffBy@example.com>'], 
+        'message': 'Example Commit Message', 
+        'commitTime': '2023-07-02T15:03:28.152849839Z', 
+        'authorTime': '2021-04-07T14:42:25.534748Z', 
+        'allProperties': {'additionalprop1': ['xxx'], 
+        'additionalprop2': ['yyy'], 
+        'additionalprop3': ['zzz']
+        }, 
+      'parentCommitHashes': ['0e4a7eeb89cfef6aaecc72d94a8ae06391bad7a0e710ce1b591ad4d9facdc7e0']}, 
+      'commonAncestorHash': '2e1cfa82b035c26cbbbdae632cea070514eb8b773f616aaeaf668e2f0be8f10d', 
+      'numTotalCommits': 12
+      }, 
+    'hash': 'be4277d9393c0ae13434d904bbcb91d2ca0688e03f5dc581ced61428247d276c'
+    }
+  }
+```
 ---
 
 ### set_reference(ref: str, body: dict, ref_type: Optional[str]=None)

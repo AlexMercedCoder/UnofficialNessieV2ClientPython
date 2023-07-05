@@ -141,8 +141,9 @@ class NessieV2Client:
         
     ## Method to Create a Merge on a Branch
     def create_merge(self, merge, branch="main", hash=None):
-        hash = hash or self.get_hash(branch, "BRANCH")
-        url = self.endpoint + f'/trees/{branch}@{hash}/history/commit'
+        hash = hash or self.get_hash(branch)
+        print(merge)
+        url = self.endpoint + f'/trees/{branch}@{hash}/history/merge'
         payload = json.dumps(merge)
         auth=self.setup_auth()
         response = requests.post(url, headers=headers["has_body"], auth=auth, data=payload, verify=self.verify)
@@ -156,8 +157,8 @@ class NessieV2Client:
         
     ## Method to Create a Transplant on a Branch
     def create_transplant(self, transplant, branch="main", hash=None):
-        hash = hash or self.get_hash(branch, "BRANCH")
-        url = self.endpoint + f'/v2/trees/{branch}@{hash}/history/commit'
+        hash = hash or self.get_hash(branch)
+        url = self.endpoint + f'/v2/trees/{branch}@{hash}/history/transplant'
         payload = json.dumps(transplant)
         auth=self.setup_auth()
         response = requests.post(url, headers=headers["has_body"], auth=auth, data=payload, verify=self.verify)
