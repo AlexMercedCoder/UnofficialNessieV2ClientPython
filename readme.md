@@ -1,7 +1,7 @@
 ## Unofficial NessieV2 Client
 
 ```
-pip install unofficial_nessiev2_tools
+pip install nessiev2_unofficial
 ```
 
 - [Official Nessie Client](https://pypi.org/project/pynessie/)

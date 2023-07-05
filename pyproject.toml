@@ -3,8 +3,13 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "unofficial_nessiev2_tools"
+name = "nessiev2_unofficial"
 version = "0.0.1"
+dependencies = [
+  'requests >= 2.8.2',
+  'requests-aws4auth >= 1.2.3',
+  'botocore >= 1.29.159',
+]
 authors = [
   { name="Alex Merced", email="alex.merced@dremio.com" },
 ]
