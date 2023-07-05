@@ -1,6 +1,6 @@
 import requests
 from requests.exceptions import HTTPError
-from utils import BearerAuth, aws_auth, headers
+from .utils import BearerAuth, aws_auth, headers
 import json
 from typing import Dict, List, Union, Optional
 

@@ -1,0 +1,15 @@
+LICENSE
+pyproject.toml
+readme.md
+src/nessiev2_unofficial/__init__.py
+src/nessiev2_unofficial/catalog.py
+src/nessiev2_unofficial/client.py
+src/nessiev2_unofficial/test_client.py
+src/nessiev2_unofficial/test_objects.py
+src/nessiev2_unofficial.egg-info/PKG-INFO
+src/nessiev2_unofficial.egg-info/SOURCES.txt
+src/nessiev2_unofficial.egg-info/dependency_links.txt
+src/nessiev2_unofficial.egg-info/requires.txt
+src/nessiev2_unofficial.egg-info/top_level.txt
+src/nessiev2_unofficial/generators/__init__.py
+src/nessiev2_unofficial/utils/__init__.py
